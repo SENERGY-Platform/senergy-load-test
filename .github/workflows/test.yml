@@ -3,7 +3,8 @@ name: 'DEV Docker Image'
 on:
   push:
     branches:
-      - dev
+      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -32,5 +33,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            smartenergyplatform/senergy-load-test:dev
-            ghcr.io/senergy-platform/senergy-load-test:dev
+            smartenergyplatform/senergy-load-test:test
+            ghcr.io/senergy-platform/senergy-load-test:test

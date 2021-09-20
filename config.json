@@ -7,6 +7,7 @@
     "mqtt_url":"",
     "device_manager_url":"",
     "device_repo_url":"",
+    "hub_prefix": "to_be_filled_by_env",
     "device_count": 10,
     "client_info_location": "./client.json",
     "emitter_interval": "1m",
