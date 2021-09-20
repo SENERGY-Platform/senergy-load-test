@@ -7,6 +7,7 @@ import (
 	"github.com/SENERGY-Platform/senergy-load-test/pkg/configuration"
 	"github.com/SENERGY-Platform/senergy-platform-connector/test/client"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -87,6 +88,9 @@ func Start(ctx context.Context, config configuration.Config) (err error) {
 	return nil
 }
 
-func createPayload(config configuration.Config) string {
-	return strings.ReplaceAll(config.ServiceMessage, "__TIME_NOW_UNIX_MS__", strconv.FormatInt(time.Now().Unix(), 10))
+func createPayload(config configuration.Config) (result string) {
+	result = config.ServiceMessage
+	result = strings.ReplaceAll(result, "__TIME_NOW_UNIX_MS__", strconv.FormatInt(time.Now().Unix(), 10))
+	result = strings.ReplaceAll(result, "__RAND_PERCENT__", strconv.FormatUint(rand.Uint64()%101, 10))
+	return
 }
