@@ -21,7 +21,7 @@ func Start(ctx context.Context, config configuration.Config) (err error) {
 	client.Id = config.AuthClientId
 	client.Secret = config.AuthClientSecret
 
-	file, err := os.Open(config.ClientInfoLocation)
+	file, err := os.OpenFile(config.ClientInfoLocation, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}
