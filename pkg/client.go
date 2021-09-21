@@ -4,13 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	platform_connector_lib "github.com/SENERGY-Platform/platform-connector-lib"
+	"github.com/SENERGY-Platform/platform-connector-lib/iot"
+	"github.com/SENERGY-Platform/platform-connector-lib/security"
 	"github.com/SENERGY-Platform/senergy-load-test/pkg/configuration"
 	"github.com/SENERGY-Platform/senergy-platform-connector/test/client"
 	"log"
 	"math/rand"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -18,7 +22,7 @@ type ClientInfo struct {
 	Id string `json:"id"`
 }
 
-func Start(ctx context.Context, config configuration.Config) (err error) {
+func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
 	client.Id = config.AuthClientId
 	client.Secret = config.AuthClientSecret
 
@@ -38,9 +42,16 @@ func Start(ctx context.Context, config configuration.Config) (err error) {
 	if err != nil {
 		return err
 	}
+	if wg != nil {
+		wg.Add(1)
+	}
 	go func() {
 		<-ctx.Done()
+		cleanup(config, devices, c)
 		c.Stop()
+		if wg != nil {
+			wg.Done()
+		}
 	}()
 	if c.HubId != clientInfo.Id {
 		clientInfo.Id = c.HubId
@@ -50,6 +61,14 @@ func Start(ctx context.Context, config configuration.Config) (err error) {
 			err = nil
 		}
 	}
+	err = simServices(ctx, config, err, devices, c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func simServices(ctx context.Context, config configuration.Config, err error, devices []client.DeviceRepresentation, c *client.Client) error {
 	messages := make(chan Message, config.DeviceCount)
 	interval, err := time.ParseDuration(config.EmitterInterval)
 	if err != nil {
@@ -66,10 +85,13 @@ func Start(ctx context.Context, config configuration.Config) (err error) {
 			log.Println("ERROR: unable to listen to device command for", d.Uri, config.ServiceUri, err)
 			return err
 		}
+		//create emitter of event messages
 		Emitter(ctx, messages, d.Uri, config.ServiceUri, interval, func() string {
 			return createPayload(config)
 		})
 	}
+
+	//send event messages created by Emitter()
 	go func() {
 		for m := range messages {
 			event := map[platform_connector_lib.ProtocolSegmentName]string{}
@@ -86,6 +108,29 @@ func Start(ctx context.Context, config configuration.Config) (err error) {
 		}
 	}()
 	return nil
+}
+
+func cleanup(config configuration.Config, devices []client.DeviceRepresentation, c *client.Client) {
+	if config.DeleteOnShutdown {
+		token, err := security.GetOpenidPasswordToken(config.AuthUrl, config.AuthClientId, config.AuthClientSecret, config.UserName, config.Password)
+		if err != nil {
+			log.Println("ERROR:", err)
+			debug.PrintStack()
+			return
+		}
+		DeleteDevices(config, devices, token.JwtToken())
+		DeleteHub(config, c.HubId, token.JwtToken())
+	}
+	return
+}
+
+func DeleteHub(config configuration.Config, id string, token security.JwtToken) {
+	err := iot.New(config.DeviceManagerUrl, "", "", "").DeleteHub(id, token)
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return
+	}
 }
 
 func createPayload(config configuration.Config) (result string) {

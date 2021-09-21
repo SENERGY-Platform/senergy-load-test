@@ -42,6 +42,7 @@ type Config struct {
 	ServiceUri         string `json:"service_uri"`
 	EmitterInterval    string `json:"emitter_interval"`
 	ServiceMessage     string `json:"service_message"`
+	DeleteOnShutdown   bool   `json:"delete_on_shutdown"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

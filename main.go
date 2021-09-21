@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 )
 
@@ -20,9 +21,13 @@ func main() {
 		log.Fatal("ERROR: unable to load config ", err)
 	}
 
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	err = pkg.Start(ctx, config)
+
+	err = pkg.Start(ctx, wg, config)
 	if err != nil {
 		log.Fatal(err)
 	}
