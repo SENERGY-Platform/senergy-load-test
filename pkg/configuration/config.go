@@ -43,6 +43,13 @@ type Config struct {
 	EmitterInterval    string `json:"emitter_interval"`
 	ServiceMessage     string `json:"service_message"`
 	DeleteOnShutdown   bool   `json:"delete_on_shutdown"`
+
+	ProcessInfoLocation     string `json:"process_info_location"`
+	ProcessDeploymentUrl    string `json:"process_deployment_url"`
+	ProcessEngineWrapperUrl string `json:"process_engine_wrapper_url"`
+	ProcessModelId          string `json:"process_model_id"`
+	ProcessServiceId        string `json:"process_service_id"`
+	ProcessInterval         string `json:"process_interval"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

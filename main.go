@@ -29,7 +29,8 @@ func main() {
 
 	err = pkg.Start(ctx, wg, config)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("ERROR: ", err)
+		return
 	}
 
 	shutdown := make(chan os.Signal, 1)

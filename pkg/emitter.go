@@ -7,12 +7,11 @@ import (
 )
 
 type Message struct {
-	Device  string
-	Service string
+	Info    map[string]string
 	Message string
 }
 
-func Emitter(ctx context.Context, out chan<- Message, device string, service string, interval time.Duration, message func() string) {
+func Emitter(ctx context.Context, out chan<- Message, info map[string]string, interval time.Duration, message func() string) {
 	go func() {
 		//wait for random time between now and interval to offset emitter
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -21,23 +20,22 @@ func Emitter(ctx context.Context, out chan<- Message, device string, service str
 		} else {
 			time.Sleep(time.Duration(r.Int63n(int64(interval))))
 		}
-		emit(out, device, service, message)
+		emit(out, info, message)
 		t := time.NewTicker(interval)
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-t.C:
-				emit(out, device, service, message)
+				emit(out, info, message)
 			}
 		}
 	}()
 }
 
-func emit(out chan<- Message, device string, service string, message func() string) {
+func emit(out chan<- Message, info map[string]string, message func() string) {
 	out <- Message{
-		Device:  device,
-		Service: service,
+		Info:    info,
 		Message: message(),
 	}
 }

@@ -9,6 +9,7 @@
     "device_repo_url":"",
     "hub_prefix": "to_be_filled_by_env",
     "device_count": 10,
+    "process_info_location": "./processes.json",
     "client_info_location": "./client.json",
     "emitter_interval": "1m",
     "device_type": "urn:infai:ses:device-type:cecad12c-9e1c-4eb2-9740-919d32a990e0",

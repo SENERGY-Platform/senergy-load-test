@@ -10,6 +10,7 @@ import (
 	"github.com/SENERGY-Platform/senergy-platform-connector/test/client"
 	"log"
 	"math/rand"
+	"net/url"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -21,6 +22,10 @@ import (
 type ClientInfo struct {
 	Id string `json:"id"`
 }
+
+const DeviceUriKey = "deviceUri"
+const ServiceUriKey = "serviceUri"
+const ProcessIdKey = "processId"
 
 func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
 	client.Id = config.AuthClientId
@@ -65,6 +70,19 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 	if err != nil {
 		return err
 	}
+	if config.ProcessModelId != "" {
+		processes, err := EnsureProcesses(ctx, wg, config, c.HubId)
+		if err != nil {
+			log.Println("WARNING: unable to create processes", err)
+			return nil
+		}
+		if config.ProcessInterval != "" && config.ProcessInterval != "-" {
+			err = triggerProcesses(ctx, config, processes)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -86,7 +104,10 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 			return err
 		}
 		//create emitter of event messages
-		Emitter(ctx, messages, d.Uri, config.ServiceUri, interval, func() string {
+		Emitter(ctx, messages, map[string]string{
+			DeviceUriKey:  d.Uri,
+			ServiceUriKey: config.ServiceUri,
+		}, interval, func() string {
 			return createPayload(config)
 		})
 	}
@@ -100,7 +121,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 				log.Println("ERROR: unable to unmarshal emitted event", m.Message, err)
 				continue
 			}
-			err = c.SendEvent(m.Device, m.Service, event)
+			err = c.SendEvent(m.Info[DeviceUriKey], m.Info[ServiceUriKey], event)
 			if err != nil {
 				log.Println("ERROR: unable to send emitted event", m.Message, err)
 				continue
@@ -138,4 +159,35 @@ func createPayload(config configuration.Config) (result string) {
 	result = strings.ReplaceAll(result, "__TIME_NOW_UNIX_MS__", strconv.FormatInt(time.Now().Unix(), 10))
 	result = strings.ReplaceAll(result, "__RAND_PERCENT__", strconv.FormatUint(rand.Uint64()%101, 10))
 	return
+}
+
+func triggerProcesses(ctx context.Context, config configuration.Config, processes []Process) (err error) {
+	openIdToken, err := security.GetOpenidPasswordToken(config.AuthUrl, config.AuthClientId, config.AuthClientSecret, config.UserName, config.Password)
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return err
+	}
+	token := openIdToken.JwtToken()
+	messages := make(chan Message, len(processes))
+	interval, err := time.ParseDuration(config.ProcessInterval)
+	if err != nil {
+		log.Println("ERROR: unable to parse emitter_interval", config.EmitterInterval, err)
+		return err
+	}
+	for _, process := range processes {
+		Emitter(ctx, messages, map[string]string{ProcessIdKey: process.Id}, interval, func() string { return "" })
+	}
+	//send event messages created by Emitter()
+	go func() {
+		for m := range messages {
+			processId := m.Info[ProcessIdKey]
+			TriggerProcess(config, processId, token)
+		}
+	}()
+	return nil
+}
+
+func TriggerProcess(config configuration.Config, processId string, token security.JwtToken) {
+	token.Get(config.ProcessEngineWrapperUrl + "/v2/deployments/" + url.QueryEscape(processId) + "/start")
 }

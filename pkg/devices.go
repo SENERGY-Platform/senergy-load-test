@@ -41,3 +41,14 @@ func DeleteDevice(config configuration.Config, id string, token security.JwtToke
 	}
 	return resp.Body.Close()
 }
+
+func GetHubDeviceIds(config configuration.Config, hubId string, token security.JwtToken, asLocalId bool) (ids []string, err error) {
+	endpoint := config.DeviceRepoUrl + "/hubs/" + url.QueryEscape(hubId) + "/devices"
+	if asLocalId {
+		endpoint = endpoint + "?as=local_id"
+	} else {
+		endpoint = endpoint + "?as=id"
+	}
+	err = token.GetJSON(endpoint, &ids)
+	return
+}
