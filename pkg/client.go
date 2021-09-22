@@ -190,5 +190,10 @@ func triggerProcesses(ctx context.Context, config configuration.Config, processe
 }
 
 func TriggerProcess(config configuration.Config, processId string, token security.JwtToken) {
-	token.Get(config.ProcessEngineWrapperUrl + "/v2/deployments/" + url.QueryEscape(processId) + "/start")
+	resp, err := token.Get(config.ProcessEngineWrapperUrl + "/v2/deployments/" + url.QueryEscape(processId) + "/start")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
+	}
+	resp.Body.Close()
 }
