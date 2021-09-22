@@ -43,6 +43,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 		err = nil
 	}
 	devices := GetDevices(config)
+	log.Println("INFO: use", len(devices), "devices; config config.DeviceCount=", config.DeviceCount)
 	c, err := client.New(config.MqttUrl, config.DeviceManagerUrl, config.DeviceRepoUrl, config.AuthUrl, config.UserName, config.Password, clientInfo.Id, config.HubPrefix, devices)
 	if err != nil {
 		return err
