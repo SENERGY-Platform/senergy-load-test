@@ -15,7 +15,7 @@ type Device struct {
 
 func GetDevices(config configuration.Config) (devices []client.DeviceRepresentation) {
 	prefix := config.HubPrefix
-	for i := 0; i < config.DeviceCount; i++ {
+	for i := 0; i < int(config.DeviceCount); i++ {
 		devices = append(devices, client.DeviceRepresentation{
 			IotType: config.DeviceType,
 			Uri:     prefix + "_" + strconv.Itoa(i),

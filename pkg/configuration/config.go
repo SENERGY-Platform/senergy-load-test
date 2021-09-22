@@ -36,7 +36,7 @@ type Config struct {
 	DeviceManagerUrl   string `json:"device_manager_url"`
 	DeviceRepoUrl      string `json:"device_repo_url"`
 	DeviceType         string `json:"device_type"`
-	DeviceCount        int    `json:"device_count"`
+	DeviceCount        int64  `json:"device_count"`
 	ClientInfoLocation string `json:"client_info_location"`
 	HubPrefix          string `json:"hub_prefix"`
 	ServiceUri         string `json:"service_uri"`
