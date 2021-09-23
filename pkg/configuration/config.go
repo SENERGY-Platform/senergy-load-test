@@ -50,6 +50,7 @@ type Config struct {
 	ProcessModelId          string `json:"process_model_id"`
 	ProcessServiceId        string `json:"process_service_id"`
 	ProcessInterval         string `json:"process_interval"`
+	StatisticsInterval      string `json:"statistics_interval"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

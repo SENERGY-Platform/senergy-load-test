@@ -7,6 +7,7 @@ import (
 	"github.com/SENERGY-Platform/platform-connector-lib/iot"
 	"github.com/SENERGY-Platform/platform-connector-lib/security"
 	"github.com/SENERGY-Platform/senergy-load-test/pkg/configuration"
+	"github.com/SENERGY-Platform/senergy-load-test/pkg/statistics"
 	"github.com/SENERGY-Platform/senergy-platform-connector/test/client"
 	"log"
 	"math/rand"
@@ -67,7 +68,19 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 			err = nil
 		}
 	}
-	err = simServices(ctx, config, err, devices, c)
+
+	var stat statistics.Interface
+	if config.StatisticsInterval != "" && config.StatisticsInterval != "-" {
+		statisticsInterval, err := time.ParseDuration(config.StatisticsInterval)
+		if err != nil {
+			log.Println("WARNING: no valid statistics interval")
+			stat = statistics.Void{}
+		} else {
+			stat = statistics.New(ctx, statisticsInterval)
+		}
+	}
+
+	err = simServices(ctx, config, err, devices, c, stat)
 	if err != nil {
 		return err
 	}
@@ -87,7 +100,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 	return nil
 }
 
-func simServices(ctx context.Context, config configuration.Config, err error, devices []client.DeviceRepresentation, c *client.Client) error {
+func simServices(ctx context.Context, config configuration.Config, err error, devices []client.DeviceRepresentation, c *client.Client, stat statistics.Interface) error {
 	messages := make(chan Message, config.DeviceCount)
 	interval, err := time.ParseDuration(config.EmitterInterval)
 	if err != nil {
@@ -122,11 +135,13 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 				log.Println("ERROR: unable to unmarshal emitted event", m.Message, err)
 				continue
 			}
+			start := time.Now()
 			err = c.SendEvent(m.Info[DeviceUriKey], m.Info[ServiceUriKey], event)
 			if err != nil {
 				log.Println("ERROR: unable to send emitted event", m.Message, err)
 				continue
 			}
+			stat.EventProduce(time.Since(start))
 		}
 	}()
 	return nil
