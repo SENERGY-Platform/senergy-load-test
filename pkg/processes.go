@@ -67,14 +67,16 @@ func CreateProcesses(config configuration.Config, hubId string) (processes []Pro
 		debug.PrintStack()
 		return processes, err
 	}
-	for _, device := range devices {
-		deployedProcess, err := CreateProcess(config, prepared, device, token.JwtToken())
-		if err != nil {
-			log.Println("ERROR:", err)
-			debug.PrintStack()
-			return processes, err
+	for i, device := range devices {
+		if int64(i)%config.OneProcessEveryNDevices == 0 {
+			deployedProcess, err := CreateProcess(config, prepared, device, token.JwtToken())
+			if err != nil {
+				log.Println("ERROR:", err)
+				debug.PrintStack()
+				return processes, err
+			}
+			processes = append(processes, Process{Id: deployedProcess.Id})
 		}
-		processes = append(processes, Process{Id: deployedProcess.Id})
 	}
 	return
 }
