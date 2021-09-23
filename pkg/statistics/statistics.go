@@ -4,16 +4,19 @@ import (
 	"context"
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 type Interface interface {
 	EventProduce(duration time.Duration)
+	EventEmitted()
 }
 
 type Void struct{}
 
 func (this Void) EventProduce(duration time.Duration) {}
+func (this Void) EventEmitted()                       {}
 
 func New(ctx context.Context, logAndResetInterval time.Duration) Interface {
 	result := &Implementation{}
@@ -24,6 +27,7 @@ func New(ctx context.Context, logAndResetInterval time.Duration) Interface {
 type Implementation struct {
 	logAndResetInterval time.Duration
 	producedEvents      []time.Duration
+	emittedCount        uint64
 	eventMux            sync.Mutex
 }
 
@@ -31,6 +35,10 @@ func (this *Implementation) EventProduce(duration time.Duration) {
 	this.eventMux.Lock()
 	defer this.eventMux.Unlock()
 	this.producedEvents = append(this.producedEvents, duration)
+}
+
+func (this *Implementation) EventEmitted() {
+	atomic.AddUint64(&this.emittedCount, 1)
 }
 
 func (this *Implementation) Start(ctx context.Context, interval time.Duration) {
@@ -52,10 +60,14 @@ func (this *Implementation) log() {
 	this.eventMux.Lock()
 	defer this.eventMux.Unlock()
 
+	produced := len(this.producedEvents)
+	emitted := atomic.LoadUint64(&this.emittedCount)
+
 	avg, min, max := statistics(this.producedEvents)
-	log.Println("LOG: produced events: \n\tthroughput:", len(this.producedEvents), "\n\tavg-latency:", avg.String(), "\n\tmin-latency:", min.String(), "\n\tmax-latency:", max.String())
+	log.Println("LOG: produced events:", "\n\temitted:", emitted, "\n\tproduced:", produced, "\n\tavg-produce-time:", avg.String(), "\n\tmin-produce-tim:", min.String(), "\n\tmax-produce-tim:", max.String())
 
 	this.producedEvents = []time.Duration{}
+	atomic.StoreUint64(&this.emittedCount, 0)
 }
 
 func statistics(list []time.Duration) (avg time.Duration, min time.Duration, max time.Duration) {

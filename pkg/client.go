@@ -101,7 +101,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 }
 
 func simServices(ctx context.Context, config configuration.Config, err error, devices []client.DeviceRepresentation, c *client.Client, stat statistics.Interface) error {
-	messages := make(chan Message, config.DeviceCount)
+	messages := make(chan Message, 10000)
 	interval, err := time.ParseDuration(config.EmitterInterval)
 	if err != nil {
 		log.Println("ERROR: unable to parse emitter_interval", config.EmitterInterval, err)
@@ -122,6 +122,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 			DeviceUriKey:  d.Uri,
 			ServiceUriKey: config.ServiceUri,
 		}, interval, func() string {
+			stat.EventEmitted()
 			return createPayload(config)
 		})
 	}
