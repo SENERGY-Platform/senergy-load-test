@@ -3,6 +3,7 @@ package statistics
 import (
 	"context"
 	"log"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -63,26 +64,32 @@ func (this *Implementation) log() {
 	produced := len(this.producedEvents)
 	emitted := atomic.LoadUint64(&this.emittedCount)
 
-	avg, min, max := statistics(this.producedEvents)
-	log.Println("LOG: produced events:", "\n\temitted:", emitted, "\n\tproduced:", produced, "\n\tavg-produce-time:", avg.String(), "\n\tmin-produce-tim:", min.String(), "\n\tmax-produce-tim:", max.String())
+	median, avg, min, max := statistics(this.producedEvents)
+	log.Println("LOG: produced events:", "\n\temitted:", emitted, "\n\tproduced:", produced, "\n\tmedian-produce-time:", median.String(), "\n\tavg-produce-time:", avg.String(), "\n\tmin-produce-tim:", min.String(), "\n\tmax-produce-tim:", max.String())
 
 	this.producedEvents = []time.Duration{}
 	atomic.StoreUint64(&this.emittedCount, 0)
 }
 
-func statistics(list []time.Duration) (avg time.Duration, min time.Duration, max time.Duration) {
+func statistics(list []time.Duration) (median time.Duration, avg time.Duration, min time.Duration, max time.Duration) {
+	sort.Slice(list, func(i, j int) bool {
+		return list[i] < list[j]
+	})
+	count := len(list)
 	if len(list) > 0 {
 		min = list[0]
+		max = list[count-1]
 	}
+
+	if count%2 == 0 {
+		median = list[count/2]
+	} else {
+		median = (list[count/2] + list[(count/2)-1]) / 2
+	}
+
 	sum := time.Duration(0)
 	for _, element := range list {
 		sum += element
-		if min > element {
-			min = element
-		}
-		if max < element {
-			max = element
-		}
 	}
 	avg = sum / time.Duration(len(list))
 	return
