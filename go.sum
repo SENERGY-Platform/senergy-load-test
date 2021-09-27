@@ -11,12 +11,12 @@ github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEV
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8D7ML55dXQrVaamCz2vxCfdQBasLZfHKk=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210908095512-308546a2ad37 h1:/nuokp379FKQPIQDC3z2B1JVTs4mEcg5lEsmiczwgVE=
-github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210908095512-308546a2ad37/go.mod h1:x45uNkmOaNtjSz2ibqYc+S4fYUsK/37Ke0ELoZUrfxE=
+github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210927124459-439a24d083bc h1:U+GjFBSLaJ/lPU2Oah8DDmXdmd3KSCFtNXvaiOGJ6Jk=
+github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210927124459-439a24d083bc/go.mod h1:x45uNkmOaNtjSz2ibqYc+S4fYUsK/37Ke0ELoZUrfxE=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a h1:tDBNqz4D2ckuS3n4Qyi/lM0M3N6mqfR6mkSYpMvQp1U=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a/go.mod h1:anvVkuNpmCRf3S1JEw6E8c4XldVYJ6eNti7oveEmPX4=
-github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210923060821-8948dd36b768 h1:81VDR3+i9OFajEEK1vStexq9ctnA3mcEDCcfqWd+rH8=
-github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210923060821-8948dd36b768/go.mod h1:5RTAxEAg2zbFvCYS9xd3jPQd9wX4b3N28U1WswtH2rE=
+github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210927130451-bda1812a4bdf h1:lyvqSQYduBfRLEkirg66C5Vc2kbDmIK7xbEuf6b5wAw=
+github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210927130451-bda1812a4bdf/go.mod h1:Xwikuq7GrDMuAit3pVZaJdZvt/qvEEipSOkfV+uEp0c=
 github.com/Shopify/sarama v1.22.0/go.mod h1:lm3THZ8reqBDBQKQyb5HB3sY1lKp3grEbQ81aWSgPp4=
 github.com/Shopify/sarama v1.29.1 h1:wBAacXbYVLmWieEA/0X/JagDdCZ8NVFOfS6l6+2u5S0=
 github.com/Shopify/sarama v1.29.1/go.mod h1:mdtqvCSg8JOxk8PmpTNGyo6wzd4BMm4QXSfDnTXmgkE=

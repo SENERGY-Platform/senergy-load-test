@@ -3,9 +3,9 @@ module github.com/SENERGY-Platform/senergy-load-test
 go 1.17
 
 require (
-	github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210908095512-308546a2ad37
+	github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210927124459-439a24d083bc
 	github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a
-	github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210923060821-8948dd36b768
+	github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210927130451-bda1812a4bdf
 )
 
 require (

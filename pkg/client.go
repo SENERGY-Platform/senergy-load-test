@@ -137,7 +137,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 				continue
 			}
 			start := time.Now()
-			err = c.SendEvent(m.Info[DeviceUriKey], m.Info[ServiceUriKey], event)
+			err = c.SendEventWithQos(m.Info[DeviceUriKey], m.Info[ServiceUriKey], event, byte(config.Qos))
 			if err != nil {
 				log.Println("ERROR: unable to send emitted event", m.Message, err)
 				continue

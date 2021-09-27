@@ -17,5 +17,6 @@
     "service_message": "{\"data\":\"{\\\"value\\\": __RAND_PERCENT__, \\\"lastUpdate\\\": __TIME_NOW_UNIX_MS__}\"}",
     "delete_on_shutdown": true,
     "statistics_interval": "1h",
-    "one_process_every_n_devices": 50
+    "one_process_every_n_devices": 50,
+    "qos": 1
 }
