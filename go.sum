@@ -13,10 +13,14 @@ github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210927124459-439a24d083bc h1:U+GjFBSLaJ/lPU2Oah8DDmXdmd3KSCFtNXvaiOGJ6Jk=
 github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210927124459-439a24d083bc/go.mod h1:x45uNkmOaNtjSz2ibqYc+S4fYUsK/37Ke0ELoZUrfxE=
+github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210929125535-e7f79a7c3334 h1:5/0cwlUza8D/WLgzv9JHxvasQOqw/l+nWnEEjrHVCaQ=
+github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210929125535-e7f79a7c3334/go.mod h1:x45uNkmOaNtjSz2ibqYc+S4fYUsK/37Ke0ELoZUrfxE=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a h1:tDBNqz4D2ckuS3n4Qyi/lM0M3N6mqfR6mkSYpMvQp1U=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a/go.mod h1:anvVkuNpmCRf3S1JEw6E8c4XldVYJ6eNti7oveEmPX4=
 github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210927130451-bda1812a4bdf h1:lyvqSQYduBfRLEkirg66C5Vc2kbDmIK7xbEuf6b5wAw=
 github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210927130451-bda1812a4bdf/go.mod h1:Xwikuq7GrDMuAit3pVZaJdZvt/qvEEipSOkfV+uEp0c=
+github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210929140123-84e0699af5df h1:jEjXuW2U1B2XeOizZDkUyTXOhcgJcsi0bsAoQwdaq3k=
+github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210929140123-84e0699af5df/go.mod h1:UH8Ql4vyMudBtjlxW93c162cLIqhwXcIRkXKVER56vI=
 github.com/Shopify/sarama v1.22.0/go.mod h1:lm3THZ8reqBDBQKQyb5HB3sY1lKp3grEbQ81aWSgPp4=
 github.com/Shopify/sarama v1.29.1 h1:wBAacXbYVLmWieEA/0X/JagDdCZ8NVFOfS6l6+2u5S0=
 github.com/Shopify/sarama v1.29.1/go.mod h1:mdtqvCSg8JOxk8PmpTNGyo6wzd4BMm4QXSfDnTXmgkE=
