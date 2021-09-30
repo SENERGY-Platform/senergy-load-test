@@ -61,10 +61,16 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 		}
 	}()
 	if c.HubId != clientInfo.Id {
+		log.Println("store new hub id in file", c.HubId, file.Name(), config.ClientInfoLocation)
 		clientInfo.Id = c.HubId
 		err = json.NewEncoder(file).Encode(clientInfo)
 		if err != nil {
-			log.Println("WARNING: unable to store client info at", config.ClientInfoLocation, err)
+			log.Println("WARNING: unable to encode client info at", config.ClientInfoLocation, err)
+			err = nil
+		}
+		err = file.Sync()
+		if err != nil {
+			log.Println("WARNING: unable to flush client info to", config.ClientInfoLocation, err)
 			err = nil
 		}
 	}

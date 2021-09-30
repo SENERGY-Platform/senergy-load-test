@@ -81,10 +81,12 @@ func statistics(list []time.Duration) (median time.Duration, avg time.Duration, 
 		max = list[count-1]
 	}
 
-	if count%2 == 0 {
-		median = list[count/2]
-	} else {
-		median = (list[count/2] + list[(count/2)-1]) / 2
+	if count > 2 {
+		if count%2 == 0 {
+			median = list[count/2]
+		} else {
+			median = (list[count/2] + list[(count/2)-1]) / 2
+		}
 	}
 
 	sum := time.Duration(0)
