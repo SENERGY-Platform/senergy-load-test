@@ -60,8 +60,9 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 			wg.Done()
 		}
 	}()
+	log.Println("started client with id", c.HubId)
 	if c.HubId != clientInfo.Id {
-		log.Println("store new hub id in file", c.HubId, file.Name(), config.ClientInfoLocation)
+		log.Println("store new hub id in file", c.HubId, config.ClientInfoLocation)
 		clientInfo.Id = c.HubId
 		err = json.NewEncoder(file).Encode(clientInfo)
 		if err != nil {
