@@ -19,6 +19,7 @@ package configuration
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/SENERGY-Platform/senergy-load-test/pkg/analytics/model"
 	"os"
 	"reflect"
 	"regexp"
@@ -53,6 +54,15 @@ type Config struct {
 	StatisticsInterval      string `json:"statistics_interval"`
 	OneProcessEveryNDevices int64  `json:"one_process_every_n_devices"`
 	Qos                     int64  `json:"qos"`
+
+	AnalyticInfoLocation      string             `json:"analytic_info_location"`
+	PublicFlowEngineUrl       string             `json:"public_flow_engine_url"`
+	PublicFlowParserUrl       string             `json:"public_flow_parser_url"`
+	PublicPipelineRepoUrl     string             `json:"public_pipeline_repo_url"`
+	AnalyticsInputValues      []model.NodeValue  `json:"analytics_input_values"`
+	AnalyticsNodeConfig       []model.NodeConfig `json:"analytics_node_config"`
+	AnalyticsFlowId           string             `json:"analytics_flow_id"`
+	OneAnalyticsEveryNDevices int64              `json:"one_analytics_every_n_devices"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

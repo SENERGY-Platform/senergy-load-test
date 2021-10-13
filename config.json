@@ -18,5 +18,21 @@
     "delete_on_shutdown": true,
     "statistics_interval": "1h",
     "one_process_every_n_devices": 50,
-    "qos": 1
+    "qos": 1,
+
+    "analytic_info_location": "./analytics.json",
+    "public_flow_engine_url": "https://fgseitsrancher.wifa.intern.uni-leipzig.de:8000/analytics/flow-engine/v2",
+    "public_flow_parser_url": "https://fgseitsrancher.wifa.intern.uni-leipzig.de:8000/analytics/flow-parser/v2",
+    "public_pipeline_repo_url": "https://fgseitsrancher.wifa.intern.uni-leipzig.de:8000/analytics/operator-repo/v2",
+    "analytics_input_values": [
+        {"name": "value", "path": "value.battery.value"},
+        {"name": "timestamp", "path": "value.battery.lastUpdate"}
+    ],
+    "analytics_node_config": [
+        {"name": "Algorithm", "value":  ""},
+        {"name": "Timezone", "value":  ""},
+        {"name": "ignoreValuesOlderThanMs", "value":  ""}
+    ],
+    "analytics_flow_id": "",
+    "one_analytics_every_n_devices": 1
 }

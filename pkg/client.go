@@ -104,6 +104,13 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 			}
 		}
 	}
+	if config.AnalyticsFlowId != "" {
+		_, err = EnsureAnalytics(ctx, wg, config, c.HubId)
+		if err != nil {
+			log.Println("WARNING: unable to create analytics", err)
+			return nil
+		}
+	}
 	return nil
 }
 
