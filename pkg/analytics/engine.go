@@ -24,9 +24,22 @@ import (
 	"net/url"
 	"runtime/debug"
 	"strings"
+	"time"
 )
 
 func (this *Analytics) Deploy(token security.JwtToken, label string, flowId string, deviceId string, serviceId string) (pipelineId string, err error) {
+	retries := 20
+	for i := 0; i < retries; i++ {
+		pipelineId, err = this.deploy(token, label, flowId, deviceId, serviceId)
+		if err == nil {
+			return pipelineId, err
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return pipelineId, err
+}
+
+func (this *Analytics) deploy(token security.JwtToken, label string, flowId string, deviceId string, serviceId string) (pipelineId string, err error) {
 	flowCells, err := this.GetFlowInputs(token, flowId)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error())
