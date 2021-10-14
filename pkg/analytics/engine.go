@@ -86,7 +86,19 @@ func ServiceIdToTopic(id string) string {
 	return id
 }
 
-func (this *Analytics) Remove(token security.JwtToken, pipelineId string) error {
+func (this *Analytics) Remove(token security.JwtToken, pipelineId string) (err error) {
+	retries := 20
+	for i := 0; i < retries; i++ {
+		err = this.remove(token, pipelineId)
+		if err == nil {
+			return err
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return err
+}
+
+func (this *Analytics) remove(token security.JwtToken, pipelineId string) error {
 	resp, err := token.Delete(this.config.PublicFlowEngineUrl + "/pipeline/" + url.PathEscape(pipelineId))
 	if err != nil {
 		return err
