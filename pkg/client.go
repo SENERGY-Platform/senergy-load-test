@@ -200,23 +200,40 @@ func triggerProcesses(ctx context.Context, config configuration.Config, processe
 		return err
 	}
 	token := openIdToken.JwtToken()
-	messages := make(chan Message, len(processes))
 	interval, err := time.ParseDuration(config.ProcessInterval)
 	if err != nil {
 		log.Println("ERROR: unable to parse emitter_interval", config.EmitterInterval, err)
 		return err
 	}
-	for _, process := range processes {
-		Emitter(ctx, messages, map[string]string{ProcessIdKey: process.Id}, interval, func() string { return "" })
-	}
-	//send event messages created by Emitter()
-	go func() {
-		for m := range messages {
-			processId := m.Info[ProcessIdKey]
-			TriggerProcess(config, processId, token)
+
+	if config.ProcessStartOnce {
+		for _, process := range processes {
+			go func() {
+				//wait for random time between now and interval to offset emitter
+				r := rand.New(rand.NewSource(time.Now().UnixNano()))
+				if interval <= 1<<31-1 {
+					time.Sleep(time.Duration(r.Int31n(int32(interval))))
+				} else {
+					time.Sleep(time.Duration(r.Int63n(int64(interval))))
+				}
+				TriggerProcess(config, process.Id, token)
+			}()
 		}
-	}()
-	return nil
+		return nil
+	} else {
+		messages := make(chan Message, len(processes))
+		for _, process := range processes {
+			Emitter(ctx, messages, map[string]string{ProcessIdKey: process.Id}, interval, func() string { return "" })
+		}
+		//send event messages created by Emitter()
+		go func() {
+			for m := range messages {
+				processId := m.Info[ProcessIdKey]
+				TriggerProcess(config, processId, token)
+			}
+		}()
+		return nil
+	}
 }
 
 func TriggerProcess(config configuration.Config, processId string, token security.JwtToken) {

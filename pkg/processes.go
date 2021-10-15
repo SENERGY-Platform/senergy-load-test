@@ -10,7 +10,9 @@ import (
 	"net/url"
 	"os"
 	"runtime/debug"
+	"strings"
 	"sync"
+	"time"
 )
 
 type Process struct {
@@ -126,13 +128,27 @@ func GetPreparedProcess(config configuration.Config, token security.JwtToken) (r
 }
 
 func CreateProcess(config configuration.Config, prepared deploymentmodel.Deployment, device string, token security.JwtToken) (result deploymentmodel.Deployment, err error) {
+	result.Name = device
 	for i, element := range prepared.Elements {
 		if element.Task != nil {
 			element.Task.Selection.SelectedDeviceId = &device
 			element.Task.Selection.SelectedServiceId = &config.ProcessServiceId
 			prepared.Elements[i] = element
 		}
+		if element.TimeEvent != nil {
+			if element.TimeEvent.Type == "timeDuration" && element.TimeEvent.Time == "" {
+				d, err := time.ParseDuration(config.ProcessInterval)
+				if err != nil {
+					return result, err
+				}
+				element.TimeEvent.Time = formatIsoDuration(d)
+			}
+		}
 	}
 	err = token.PostJSON(config.ProcessDeploymentUrl+"/v2/deployments", prepared, &result)
 	return
+}
+
+func formatIsoDuration(dur time.Duration) string {
+	return "PT" + strings.ToUpper(dur.Truncate(time.Millisecond).String())
 }

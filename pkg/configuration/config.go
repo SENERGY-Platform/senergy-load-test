@@ -45,6 +45,7 @@ type Config struct {
 	ServiceMessage     string `json:"service_message"`
 	DeleteOnShutdown   bool   `json:"delete_on_shutdown"`
 
+	ProcessStartOnce        bool   `json:"process_start_once"`
 	ProcessInfoLocation     string `json:"process_info_location"`
 	ProcessDeploymentUrl    string `json:"process_deployment_url"`
 	ProcessEngineWrapperUrl string `json:"process_engine_wrapper_url"`
