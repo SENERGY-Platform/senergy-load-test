@@ -128,7 +128,7 @@ func GetPreparedProcess(config configuration.Config, token security.JwtToken) (r
 }
 
 func CreateProcess(config configuration.Config, prepared deploymentmodel.Deployment, device string, token security.JwtToken) (result deploymentmodel.Deployment, err error) {
-	result.Name = device
+	prepared.Name = device
 	for i, element := range prepared.Elements {
 		if element.Task != nil {
 			element.Task.Selection.SelectedDeviceId = &device
