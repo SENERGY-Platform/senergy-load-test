@@ -28,6 +28,8 @@ import (
 )
 
 type Config struct {
+	Debug bool `json:"debug"`
+
 	AuthUrl            string `json:"auth_url"`
 	AuthClientId       string `json:"auth_client_id"`
 	AuthClientSecret   string `json:"auth_client_secret"`
