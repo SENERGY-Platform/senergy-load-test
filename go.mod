@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210930074249-f0f2d7c8f5ac
 	github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a
-	github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20211018110947-e873b3c50475
+	github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20211018135105-982763a59c1e
 	github.com/satori/go.uuid v1.2.0
 )
 
