@@ -12,12 +12,14 @@ import (
 type Interface interface {
 	EventProduce(duration time.Duration)
 	EventEmitted()
+	CommandsHandled()
 }
 
 type Void struct{}
 
 func (this Void) EventProduce(duration time.Duration) {}
 func (this Void) EventEmitted()                       {}
+func (this Void) CommandsHandled()                    {}
 
 func New(ctx context.Context, logAndResetInterval time.Duration) Interface {
 	result := &Implementation{}
@@ -26,10 +28,11 @@ func New(ctx context.Context, logAndResetInterval time.Duration) Interface {
 }
 
 type Implementation struct {
-	logAndResetInterval time.Duration
-	producedEvents      []time.Duration
-	emittedCount        uint64
-	eventMux            sync.Mutex
+	logAndResetInterval  time.Duration
+	producedEvents       []time.Duration
+	emittedCount         uint64
+	commandsHandledCount uint64
+	eventMux             sync.Mutex
 }
 
 func (this *Implementation) EventProduce(duration time.Duration) {
@@ -39,6 +42,10 @@ func (this *Implementation) EventProduce(duration time.Duration) {
 }
 
 func (this *Implementation) EventEmitted() {
+	atomic.AddUint64(&this.emittedCount, 1)
+}
+
+func (this *Implementation) CommandsHandled() {
 	atomic.AddUint64(&this.emittedCount, 1)
 }
 
@@ -63,12 +70,14 @@ func (this *Implementation) log() {
 
 	produced := len(this.producedEvents)
 	emitted := atomic.LoadUint64(&this.emittedCount)
+	commands := atomic.LoadUint64(&this.commandsHandledCount)
 
 	median, avg, min, max := statistics(this.producedEvents)
-	log.Println("LOG: produced events:", "\n\temitted:", emitted, "\n\tproduced:", produced, "\n\tmedian-produce-time:", median.String(), "\n\tavg-produce-time:", avg.String(), "\n\tmin-produce-tim:", min.String(), "\n\tmax-produce-tim:", max.String())
+	log.Println("LOG: produced events:", "\n\tcommands:", commands, "\n\temitted:", emitted, "\n\tproduced:", produced, "\n\tmedian-produce-time:", median.String(), "\n\tavg-produce-time:", avg.String(), "\n\tmin-produce-tim:", min.String(), "\n\tmax-produce-tim:", max.String())
 
 	this.producedEvents = []time.Duration{}
 	atomic.StoreUint64(&this.emittedCount, 0)
+	atomic.StoreUint64(&this.commandsHandledCount, 0)
 }
 
 func statistics(list []time.Duration) (median time.Duration, avg time.Duration, min time.Duration, max time.Duration) {

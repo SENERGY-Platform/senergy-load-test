@@ -3,9 +3,10 @@ module github.com/SENERGY-Platform/senergy-load-test
 go 1.17
 
 require (
-	github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210929125535-e7f79a7c3334
+	github.com/SENERGY-Platform/platform-connector-lib v0.0.0-20210930074249-f0f2d7c8f5ac
 	github.com/SENERGY-Platform/process-deployment v0.0.0-20210824112758-7165db49cc7a
-	github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20210929140123-84e0699af5df
+	github.com/SENERGY-Platform/senergy-platform-connector v0.0.0-20211018110947-e873b3c50475
+	github.com/satori/go.uuid v1.2.0
 )
 
 require (
@@ -25,6 +26,15 @@ require (
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
+	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
+	github.com/jackc/pgconn v1.10.0 // indirect
+	github.com/jackc/pgio v1.0.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgproto3/v2 v2.1.1 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
+	github.com/jackc/pgtype v1.8.1 // indirect
+	github.com/jackc/pgx/v4 v4.13.0 // indirect
+	github.com/jackc/puddle v1.1.3 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
@@ -34,8 +44,8 @@ require (
 	github.com/lib/pq v1.10.3 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/kafka-go v0.4.20 // indirect
-	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
+	golang.org/x/text v0.3.6 // indirect
 )

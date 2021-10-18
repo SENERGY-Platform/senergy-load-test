@@ -126,6 +126,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 			if config.Debug {
 				log.Println("DEBUG: receive command")
 			}
+			stat.CommandsHandled()
 			payload := createPayload(config)
 			err = json.Unmarshal([]byte(payload), &resp)
 			return
