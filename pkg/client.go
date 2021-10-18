@@ -122,7 +122,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 		return err
 	}
 	for _, d := range devices {
-		err = c.ListenCommand(d.Uri, config.ServiceUri, func(msg platform_connector_lib.CommandRequestMsg) (resp platform_connector_lib.CommandResponseMsg, err error) {
+		err = c.ListenCommandWithQos(d.Uri, config.ServiceUri, byte(config.Qos), func(msg platform_connector_lib.CommandRequestMsg) (resp platform_connector_lib.CommandResponseMsg, err error) {
 			if config.Debug {
 				log.Println("DEBUG: receive command")
 			}
