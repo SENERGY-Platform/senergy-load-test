@@ -46,7 +46,7 @@ func (this *Implementation) EventEmitted() {
 }
 
 func (this *Implementation) CommandsHandled() {
-	atomic.AddUint64(&this.emittedCount, 1)
+	atomic.AddUint64(&this.commandsHandledCount, 1)
 }
 
 func (this *Implementation) Start(ctx context.Context, interval time.Duration) {
