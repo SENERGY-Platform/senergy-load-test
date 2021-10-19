@@ -102,6 +102,8 @@ func statistics(list []time.Duration) (median time.Duration, avg time.Duration, 
 	for _, element := range list {
 		sum += element
 	}
-	avg = sum / time.Duration(len(list))
+	if len(list) > 0 {
+		avg = sum / time.Duration(len(list))
+	}
 	return
 }
