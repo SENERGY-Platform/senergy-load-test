@@ -212,7 +212,7 @@ func triggerProcesses(ctx context.Context, config configuration.Config, processe
 
 	if config.ProcessStartOnce {
 		for _, process := range processes {
-			go func() {
+			go func(p Process) {
 				//wait for random time between now and interval to offset emitter
 				r := rand.New(rand.NewSource(time.Now().UnixNano()))
 				if interval <= 1<<31-1 {
@@ -220,8 +220,8 @@ func triggerProcesses(ctx context.Context, config configuration.Config, processe
 				} else {
 					time.Sleep(time.Duration(r.Int63n(int64(interval))))
 				}
-				TriggerProcess(config, process.Id, token)
-			}()
+				TriggerProcess(config, p.Id, token)
+			}(process)
 		}
 		return nil
 	} else {
