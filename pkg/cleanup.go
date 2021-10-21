@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"runtime/debug"
+	"strconv"
 )
 
 func Cleanup(config configuration.Config) error {
@@ -22,6 +23,7 @@ func Cleanup(config configuration.Config) error {
 	devices := []SearchElement{}
 	var after *ListAfter
 	for {
+		log.Println("LIST DEVICE BATCH")
 		err, _ = QueryPermissionsSearch(config, token.JwtToken(), QueryMessage{
 			Resource: "devices",
 			Find: &QueryFind{
@@ -49,6 +51,7 @@ func Cleanup(config configuration.Config) error {
 		temp = []SearchElement{}
 	}
 	for _, d := range devices {
+		log.Println("DELETE", d.Id, d.Name)
 		resp, err := token.JwtToken().Delete(config.DeviceManagerUrl + "/devices/" + url.QueryEscape(d.Id))
 		if err != nil {
 			return err
@@ -61,7 +64,11 @@ func Cleanup(config configuration.Config) error {
 	tempProcesses := []SearchElement{}
 	processes := []SearchElement{}
 	for {
-		tempProcesses, err = GetProcessDeploymentList(config, token.JwtToken(), map[string][]string{})
+		log.Println("LIST PROCESSES BATCH")
+		tempProcesses, err = GetProcessDeploymentList(config, token.JwtToken(), map[string][]string{
+			"maxResults":  {strconv.Itoa(limit)},
+			"firstResult": {strconv.Itoa(offset)},
+		})
 		if err != nil {
 			return err
 		}
@@ -73,6 +80,7 @@ func Cleanup(config configuration.Config) error {
 		offset = offset + limit
 	}
 	for _, p := range processes {
+		log.Println("DELETE", p.Id, p.Name)
 		resp, err := token.JwtToken().Delete(config.ProcessDeploymentUrl + "/v2/deployments/" + url.QueryEscape(p.Id))
 		if err != nil {
 			log.Println("ERROR:", err)
