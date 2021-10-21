@@ -18,7 +18,7 @@ func Cleanup(config configuration.Config) error {
 	}
 
 	//devices
-	limit := 200
+	limit := int(config.DeviceCount)
 	temp := []SearchElement{}
 	devices := []SearchElement{}
 	var after *ListAfter
