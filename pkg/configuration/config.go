@@ -66,6 +66,9 @@ type Config struct {
 	AnalyticsNodeConfig       []model.NodeConfig `json:"analytics_node_config"`
 	AnalyticsFlowId           string             `json:"analytics_flow_id"`
 	OneAnalyticsEveryNDevices int64              `json:"one_analytics_every_n_devices"`
+
+	IsCleanup           bool   `json:"is_cleanup"`
+	PermissionsQueryUrl string `json:"permissions_query_url"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

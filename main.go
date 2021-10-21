@@ -21,20 +21,27 @@ func main() {
 		log.Fatal("ERROR: unable to load config ", err)
 	}
 
-	wg := &sync.WaitGroup{}
-	defer wg.Wait()
+	if config.IsCleanup {
+		err = pkg.Cleanup(config)
+		if err != nil {
+			log.Fatal("ERROR:", err)
+		}
+	} else {
+		wg := &sync.WaitGroup{}
+		defer wg.Wait()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	err = pkg.Start(ctx, wg, config)
-	if err != nil {
-		log.Println("ERROR: ", err)
-		return
+		err = pkg.Start(ctx, wg, config)
+		if err != nil {
+			log.Println("ERROR: ", err)
+			return
+		}
+
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+		sig := <-shutdown
+		log.Println("received shutdown signal", sig)
 	}
-
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	sig := <-shutdown
-	log.Println("received shutdown signal", sig)
 }

@@ -36,5 +36,7 @@
     "analytics_flow_id": "",
     "one_analytics_every_n_devices": 1,
 
-    "process_start_once": false
+    "process_start_once": false,
+
+    "is_cleanup": false
 }
