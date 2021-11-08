@@ -45,7 +45,7 @@ func Start(basectx context.Context, wg *sync.WaitGroup, config configuration.Con
 			c.ClientInfoLocation = iterateFileLocation(config.ClientInfoLocation, i)
 			c.ProcessInfoLocation = iterateFileLocation(config.ProcessInfoLocation, i)
 			c.AnalyticInfoLocation = iterateFileLocation(config.AnalyticInfoLocation, i)
-			err = start(ctx, wg, c)
+			err = startRetry(ctx, wg, c, 5)
 			if err != nil {
 				return
 			}
@@ -62,6 +62,21 @@ func iterateFileLocation(location string, i int64) string {
 	parts[0] = parts[0] + "_" + strconv.FormatInt(i, 10)
 	file = strings.Join(parts, ".")
 	return path.Join(dir, file)
+}
+
+func startRetry(basectx context.Context, wg *sync.WaitGroup, config configuration.Config, retries int) (err error) {
+	for i := 0; i < retries; i++ {
+		ctx, cancel := context.WithCancel(basectx)
+		err = start(ctx, wg, config)
+		if err != nil {
+			return nil
+		} else {
+			log.Println("error on start; retry in 10s;", err)
+			cancel()
+			time.Sleep(10 * time.Second)
+		}
+	}
+	return err
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
