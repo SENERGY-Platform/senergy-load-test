@@ -28,7 +28,31 @@ const DeviceUriKey = "deviceUri"
 const ServiceUriKey = "serviceUri"
 const ProcessIdKey = "processId"
 
-func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
+func Start(basectx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
+	ctx, cancel := context.WithCancel(basectx)
+	defer func() {
+		if err != nil {
+			log.Println("error on startup; rollback")
+			cancel()
+			wg.Wait()
+		}
+	}()
+	if config.Instances > 1 {
+		for i := int64(1); i <= config.Instances; i++ {
+			c := config
+			c.HubPrefix = config.HubPrefix + "_" + strconv.FormatInt(i, 10)
+			err = start(ctx, wg, c)
+			if err != nil {
+				return
+			}
+		}
+		return nil
+	} else {
+		return start(ctx, wg, config)
+	}
+}
+
+func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
 	client.Id = config.AuthClientId
 	client.Secret = config.AuthClientSecret
 

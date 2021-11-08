@@ -69,6 +69,8 @@ type Config struct {
 
 	IsCleanup           bool   `json:"is_cleanup"`
 	PermissionsQueryUrl string `json:"permissions_query_url"`
+
+	Instances int64 `json:"instances"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)
