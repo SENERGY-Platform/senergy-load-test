@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
+	"path"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -41,6 +42,9 @@ func Start(basectx context.Context, wg *sync.WaitGroup, config configuration.Con
 		for i := int64(1); i <= config.Instances; i++ {
 			c := config
 			c.HubPrefix = config.HubPrefix + "_" + strconv.FormatInt(i, 10)
+			c.ClientInfoLocation = iterateFileLocation(config.ClientInfoLocation, i)
+			c.ProcessInfoLocation = iterateFileLocation(config.ProcessInfoLocation, i)
+			c.AnalyticInfoLocation = iterateFileLocation(config.AnalyticInfoLocation, i)
 			err = start(ctx, wg, c)
 			if err != nil {
 				return
@@ -50,6 +54,14 @@ func Start(basectx context.Context, wg *sync.WaitGroup, config configuration.Con
 	} else {
 		return start(ctx, wg, config)
 	}
+}
+
+func iterateFileLocation(location string, i int64) string {
+	dir, file := path.Split(location)
+	parts := strings.Split(file, ".")
+	parts[0] = parts[0] + "_" + strconv.FormatInt(i, 10)
+	file = strings.Join(parts, ".")
+	return path.Join(dir, file)
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
