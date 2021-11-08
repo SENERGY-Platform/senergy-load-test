@@ -69,11 +69,11 @@ func startRetry(basectx context.Context, wg *sync.WaitGroup, config configuratio
 		ctx, cancel := context.WithCancel(basectx)
 		err = start(ctx, wg, config)
 		if err != nil {
-			return nil
-		} else {
 			log.Println("error on start; retry in 10s;", err)
 			cancel()
 			time.Sleep(10 * time.Second)
+		} else {
+			return nil
 		}
 	}
 	return err
