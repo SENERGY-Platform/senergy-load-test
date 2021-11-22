@@ -6,9 +6,11 @@ import (
 	platform_connector_lib "github.com/SENERGY-Platform/platform-connector-lib"
 	"github.com/SENERGY-Platform/platform-connector-lib/iot"
 	"github.com/SENERGY-Platform/platform-connector-lib/security"
+	"github.com/SENERGY-Platform/senergy-load-test/pkg/client"
+	"github.com/SENERGY-Platform/senergy-load-test/pkg/client/factory"
 	"github.com/SENERGY-Platform/senergy-load-test/pkg/configuration"
 	"github.com/SENERGY-Platform/senergy-load-test/pkg/statistics"
-	"github.com/SENERGY-Platform/senergy-platform-connector/test/client"
+	senergyclient "github.com/SENERGY-Platform/senergy-platform-connector/test/client"
 	"log"
 	"math/rand"
 	"net/url"
@@ -80,9 +82,10 @@ func startRetry(basectx context.Context, wg *sync.WaitGroup, config configuratio
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (err error) {
-	client.Id = config.AuthClientId
-	client.Secret = config.AuthClientSecret
-
+	connector, err := factory.GetConnectorType(config.ConnectorType)
+	if err != nil {
+		return err
+	}
 	file, err := os.OpenFile(config.ClientInfoLocation, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
@@ -96,7 +99,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 	}
 	devices := GetDevices(config)
 	log.Println("INFO: use", len(devices), "devices; config config.DeviceCount=", config.DeviceCount)
-	c, err := client.New(config.MqttUrl, config.DeviceManagerUrl, config.DeviceRepoUrl, config.AuthUrl, config.UserName, config.Password, clientInfo.Id, config.HubPrefix, devices)
+	c, err := factory.Get(connector)(config.AuthClientId, config.AuthClientSecret, config.MqttUrl, config.DeviceManagerUrl, config.DeviceRepoUrl, config.AuthUrl, config.UserName, config.Password, clientInfo.Id, config.HubPrefix, devices)
 	if err != nil {
 		return err
 	}
@@ -111,10 +114,10 @@ func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 			wg.Done()
 		}
 	}()
-	log.Println("started client with id", c.HubId)
-	if c.HubId != clientInfo.Id {
-		log.Println("store new hub id in file", c.HubId, config.ClientInfoLocation)
-		clientInfo.Id = c.HubId
+	log.Println("started client with id", c.HubId())
+	if c.HubId() != clientInfo.Id {
+		log.Println("store new hub id in file", c.HubId(), config.ClientInfoLocation)
+		clientInfo.Id = c.HubId()
 		err = json.NewEncoder(file).Encode(clientInfo)
 		if err != nil {
 			log.Println("WARNING: unable to encode client info at", config.ClientInfoLocation, err)
@@ -143,7 +146,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 		return err
 	}
 	if config.ProcessModelId != "" {
-		processes, err := EnsureProcesses(ctx, wg, config, c.HubId)
+		processes, err := EnsureProcesses(ctx, wg, config, c.HubId())
 		if err != nil {
 			log.Println("WARNING: unable to create processes", err)
 			return nil
@@ -156,7 +159,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 		}
 	}
 	if config.AnalyticsFlowId != "" {
-		_, err = EnsureAnalytics(ctx, wg, config, c.HubId)
+		_, err = EnsureAnalytics(ctx, wg, config, c.HubId())
 		if err != nil {
 			log.Println("WARNING: unable to create analytics", err)
 			return nil
@@ -165,7 +168,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 	return nil
 }
 
-func simServices(ctx context.Context, config configuration.Config, err error, devices []client.DeviceRepresentation, c *client.Client, stat statistics.Interface) error {
+func simServices(ctx context.Context, config configuration.Config, err error, devices []senergyclient.DeviceRepresentation, c client.Client, stat statistics.Interface) error {
 	messages := make(chan Message, 10000)
 	interval, err := time.ParseDuration(config.EmitterInterval)
 	if err != nil {
@@ -173,7 +176,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 		return err
 	}
 	for _, d := range devices {
-		err = c.ListenCommandWithQos(d.Uri, config.ServiceUri, byte(config.Qos), func(msg platform_connector_lib.CommandRequestMsg) (resp platform_connector_lib.CommandResponseMsg, err error) {
+		err = c.ListenCommandWithQos(d.Uri, config.CommandServiceUri, byte(config.Qos), func(msg platform_connector_lib.CommandRequestMsg) (resp platform_connector_lib.CommandResponseMsg, err error) {
 			if config.Debug {
 				log.Println("DEBUG: receive command")
 			}
@@ -183,13 +186,13 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 			return
 		})
 		if err != nil {
-			log.Println("ERROR: unable to listen to device command for", d.Uri, config.ServiceUri, err)
+			log.Println("ERROR: unable to listen to device command for", d.Uri, config.CommandServiceUri, err)
 			return err
 		}
 		//create emitter of event messages
 		Emitter(ctx, messages, map[string]string{
 			DeviceUriKey:  d.Uri,
-			ServiceUriKey: config.ServiceUri,
+			ServiceUriKey: config.EventServiceUri,
 		}, interval, func() string {
 			stat.EventEmitted()
 			return createPayload(config)
@@ -217,7 +220,7 @@ func simServices(ctx context.Context, config configuration.Config, err error, de
 	return nil
 }
 
-func cleanup(config configuration.Config, devices []client.DeviceRepresentation, c *client.Client) {
+func cleanup(config configuration.Config, devices []senergyclient.DeviceRepresentation, c client.Client) {
 	if config.DeleteOnShutdown {
 		token, err := security.GetOpenidPasswordToken(config.AuthUrl, config.AuthClientId, config.AuthClientSecret, config.UserName, config.Password)
 		if err != nil {
@@ -226,12 +229,15 @@ func cleanup(config configuration.Config, devices []client.DeviceRepresentation,
 			return
 		}
 		DeleteDevices(config, devices, token.JwtToken())
-		DeleteHub(config, c.HubId, token.JwtToken())
+		DeleteHub(config, c.HubId(), token.JwtToken())
 	}
 	return
 }
 
 func DeleteHub(config configuration.Config, id string, token security.JwtToken) {
+	if id == "" {
+		return
+	}
 	err := iot.New(config.DeviceManagerUrl, "", "", "").DeleteHub(id, token)
 	if err != nil {
 		log.Println("ERROR:", err)

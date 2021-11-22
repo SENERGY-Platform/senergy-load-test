@@ -42,7 +42,8 @@ type Config struct {
 	DeviceCount        int64  `json:"device_count"`
 	ClientInfoLocation string `json:"client_info_location"`
 	HubPrefix          string `json:"hub_prefix"`
-	ServiceUri         string `json:"service_uri"`
+	CommandServiceUri  string `json:"command_service_uri"`
+	EventServiceUri    string `json:"event_service_uri"`
 	EmitterInterval    string `json:"emitter_interval"`
 	ServiceMessage     string `json:"service_message"`
 	DeleteOnShutdown   bool   `json:"delete_on_shutdown"`
@@ -71,6 +72,8 @@ type Config struct {
 	PermissionsQueryUrl string `json:"permissions_query_url"`
 
 	Instances int64 `json:"instances"`
+
+	ConnectorType string `json:"connector_type"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)
