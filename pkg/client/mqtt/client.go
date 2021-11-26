@@ -42,7 +42,7 @@ func Factory(authClientId string, authClientSecret string, mqttUrl string, devic
 		return result, err
 	}
 	if newDevices {
-		time.Sleep(2 * time.Second) //wait for device creation
+		time.Sleep(10 * time.Second) //wait for device creation
 	}
 	err = c.startMqtt()
 	return c, err
