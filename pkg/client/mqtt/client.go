@@ -28,7 +28,8 @@ func Factory(authClientId string, authClientSecret string, mqttUrl string, devic
 
 		deviceLocalIdToId: map[string]string{},
 
-		mqttClientId: uuid.NewV4().String(),
+		mqttClientId:  uuid.NewV4().String(),
+		subscriptions: map[string]Subscription{},
 	}
 
 	token, err := security.GetOpenidPasswordToken(authUrl, authClientId, authClientSecret, userName, password)
