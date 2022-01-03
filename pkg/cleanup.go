@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"runtime/debug"
 	"strconv"
+	"time"
 )
 
 func Cleanup(config configuration.Config) error {
@@ -60,34 +61,28 @@ func Cleanup(config configuration.Config) error {
 	}
 
 	//processes
-	offset := 0
-	tempProcesses := []SearchElement{}
-	processes := []SearchElement{}
 	for {
-		log.Println("LIST PROCESSES BATCH")
-		tempProcesses, err = GetProcessDeploymentList(config, token.JwtToken(), map[string][]string{
+		log.Println("PROCESSES BATCH")
+		processes, err := GetProcessDeploymentList(config, token.JwtToken(), map[string][]string{
 			"maxResults":  {strconv.Itoa(limit)},
-			"firstResult": {strconv.Itoa(offset)},
+			"firstResult": {strconv.Itoa(0)},
 		})
 		if err != nil {
 			return err
 		}
-		processes = append(processes, tempProcesses...)
-		if len(tempProcesses) < limit {
+		for _, p := range processes {
+			log.Println("DELETE", p.Id, p.Name)
+			resp, err := token.JwtToken().Delete(config.ProcessDeploymentUrl + "/v2/deployments/" + url.QueryEscape(p.Id))
+			if err != nil {
+				log.Println("ERROR:", p.Id, p.Name, err)
+			} else {
+				resp.Body.Close()
+			}
+		}
+		if len(processes) < limit {
 			break
 		}
-		tempProcesses = []SearchElement{}
-		offset = offset + limit
-	}
-	for _, p := range processes {
-		log.Println("DELETE", p.Id, p.Name)
-		resp, err := token.JwtToken().Delete(config.ProcessDeploymentUrl + "/v2/deployments/" + url.QueryEscape(p.Id))
-		if err != nil {
-			log.Println("ERROR:", err)
-			debug.PrintStack()
-			return err
-		}
-		resp.Body.Close()
+		time.Sleep(2 * time.Second)
 	}
 	return nil
 }
