@@ -61,11 +61,12 @@ func Cleanup(config configuration.Config) error {
 	}
 
 	//processes
+	offset := 0
 	for {
 		log.Println("PROCESSES BATCH")
 		processes, err := GetProcessDeploymentList(config, token.JwtToken(), map[string][]string{
 			"maxResults":  {strconv.Itoa(limit)},
-			"firstResult": {strconv.Itoa(0)},
+			"firstResult": {strconv.Itoa(offset)},
 		})
 		if err != nil {
 			return err
@@ -75,6 +76,7 @@ func Cleanup(config configuration.Config) error {
 			resp, err := token.JwtToken().Delete(config.ProcessDeploymentUrl + "/v2/deployments/" + url.QueryEscape(p.Id))
 			if err != nil {
 				log.Println("ERROR:", p.Id, p.Name, err)
+				offset = offset + 1
 			} else {
 				resp.Body.Close()
 			}
